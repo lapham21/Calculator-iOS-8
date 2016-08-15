@@ -49,7 +49,7 @@ class ViewController: UIViewController
 		if let operation = sender.currentTitle {
 			if let result = brain.performOperation(operation) {
 				displayValue = result
-				calculatorHistory.text = calculatorHistory.text! + ", \(operation)"
+				calculatorHistory.text = calculatorHistory.text! + ", \(operation) = "
 			} else {
 				displayValue = 0
 			}
@@ -71,8 +71,10 @@ class ViewController: UIViewController
 	}
 	
 	@IBAction func clear() {
+		brain.clearStack()
 		display.text = "0"
 		calculatorHistory.text = "Calculator History"
+		userIsInTheMiddleOfTypingANumber = false
 	}
 	
 	@IBAction func floatingPointDecimal() {
