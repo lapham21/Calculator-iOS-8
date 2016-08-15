@@ -17,6 +17,8 @@ class ViewController: UIViewController
 	
 	private var userIsInTheMiddleOfTypingANumber = false
 	
+	private var userHasCalledForAResult = false
+	
 	@IBOutlet weak var calculatorHistory: UILabel!
 	
 	// local display computed variable used to when displayValue is needed as a double
@@ -34,6 +36,10 @@ class ViewController: UIViewController
 	{
 		let digit = sender.currentTitle!
 		
+		if userHasCalledForAResult {
+			removeEqualSign()
+		}
+		
 		if userIsInTheMiddleOfTypingANumber {
 			display.text = display.text! + digit
 		} else {
@@ -43,13 +49,18 @@ class ViewController: UIViewController
 	}
 	
 	@IBAction func operate(sender: UIButton) {
+		if userHasCalledForAResult {
+			removeEqualSign()
+			userHasCalledForAResult = false
+		}
 		if userIsInTheMiddleOfTypingANumber {
 			enter()
 		}
 		if let operation = sender.currentTitle {
 			if let result = brain.performOperation(operation) {
 				displayValue = result
-				calculatorHistory.text = calculatorHistory.text! + ", \(operation) = "
+				calculatorHistory.text = calculatorHistory.text! + ", \(operation) ="
+				userHasCalledForAResult = true
 			} else {
 				displayValue = 0
 			}
@@ -81,6 +92,15 @@ class ViewController: UIViewController
 		if userIsInTheMiddleOfTypingANumber && !(display.text?.containsString("."))! {
 			display.text = display.text! + "."
 		}
+	}
+	
+	func removeEqualSign() {
+		var tempCalculatorHistory = calculatorHistory.text
+		for _ in 0...1 {
+			tempCalculatorHistory = String(tempCalculatorHistory!.characters.dropLast())
+		}
+		calculatorHistory.text = tempCalculatorHistory
+		userHasCalledForAResult = false
 	}
 }
 
