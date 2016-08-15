@@ -11,10 +11,16 @@ import UIKit
 class ViewController: UIViewController
 {
 
+	var brain = CalculatorBrain()
+	
 	@IBOutlet weak var display: UILabel!
 	
-	// local display computed variable used to convert to double
-	var displayValue: Double {
+	private var userIsInTheMiddleOfTypingANumber = false
+	
+	@IBOutlet weak var calculatorHistory: UILabel!
+	
+	// local display computed variable used to when displayValue is needed as a double
+	private var displayValue: Double {
 		get {
 			return NSNumberFormatter().numberFromString(display.text!)!.doubleValue
 		}
@@ -23,8 +29,6 @@ class ViewController: UIViewController
 			userIsInTheMiddleOfTypingANumber = false
 		}
 	}
-	
-	var userIsInTheMiddleOfTypingANumber = false
 	
 	@IBAction func appendDigit(sender: UIButton)
 	{
@@ -39,41 +43,42 @@ class ViewController: UIViewController
 	}
 	
 	@IBAction func operate(sender: UIButton) {
-		let operation = sender.currentTitle!
 		if userIsInTheMiddleOfTypingANumber {
 			enter()
 		}
-		switch operation {
-		case "×": performOperation { $0 * $1 }
-		case "÷": performOperation { $1 / $0 }
-		case "+": performOperation { $0 + $1 }
-		case "−": performOperation { $1 - $0 }
-		case "√": performOperation { sqrt($0) }
-		default: break
+		if let operation = sender.currentTitle {
+			if let result = brain.performOperation(operation) {
+				displayValue = result
+				calculatorHistory.text = calculatorHistory.text! + ", \(operation)"
+			} else {
+				displayValue = 0
+			}
 		}
 	}
-	
-	private func performOperation(operations: Double -> Double) {
-		if operandStack.count >= 1 {
-			displayValue = operations(operandStack.removeLast())
-			enter()
-		}
-	}
-	
-	private func performOperation(operation: (Double, Double) -> Double) {
-		if operandStack.count >= 2 {
-			displayValue = operation(operandStack.removeLast(), operandStack.removeLast())
-			enter()
-		}
-	}
-
-
-	var operandStack = Array<Double>()
 	
 	@IBAction func enter() {
 		userIsInTheMiddleOfTypingANumber = false
-		operandStack.append(displayValue)
-		print("operandStack = \(operandStack)")
+		if let result = brain.pushOperand(displayValue) {
+			displayValue = result
+			if calculatorHistory.text!.containsString("Calculator History") {
+				calculatorHistory.text = "\(result)"
+			} else {
+				calculatorHistory.text = calculatorHistory.text! + ", \(result)"
+			}
+		} else {
+			displayValue = 0
+		}
+	}
+	
+	@IBAction func clear() {
+		display.text = "0"
+		calculatorHistory.text = "Calculator History"
+	}
+	
+	@IBAction func floatingPointDecimal() {
+		if userIsInTheMiddleOfTypingANumber && !(display.text?.containsString("."))! {
+			display.text = display.text! + "."
+		}
 	}
 }
 
