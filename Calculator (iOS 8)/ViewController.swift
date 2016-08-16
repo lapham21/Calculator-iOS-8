@@ -102,6 +102,17 @@ class ViewController: UIViewController
 		calculatorHistory.text = tempCalculatorHistory
 		userHasCalledForAResult = false
 	}
+	
+	@IBAction func backspace() {
+		if userIsInTheMiddleOfTypingANumber {
+			if display.text?.characters.count > 1 {
+				display.text = display.text!.substringToIndex(display.text!.endIndex.predecessor())
+			} else {
+				displayValue = 0
+				userIsInTheMiddleOfTypingANumber = false
+			}
+		}
+	}
 }
 
 
