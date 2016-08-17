@@ -90,6 +90,7 @@ class ViewController: UIViewController
 		displayValue = nil
 		calculatorHistory.text = "Calculator History"
 		userIsInTheMiddleOfTypingANumber = false
+		userHasCalledForAResult = false
 	}
 	
 	@IBAction func floatingPointDecimal() {
