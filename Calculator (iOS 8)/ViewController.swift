@@ -24,11 +24,16 @@ class ViewController: UIViewController
 	// local display computed variable used to when displayValue is needed as a double
 	private var displayValue: Double? {
 		get {
-			return NSNumberFormatter().numberFromString(display.text!)!.doubleValue
+			if let unwrappedDisplayTextAsDouble = NSNumberFormatter().numberFromString(display.text!)?.doubleValue {
+				return unwrappedDisplayTextAsDouble
+			} else {
+				display.text = "0.0"
+				return nil
+			}
 		}
 		set {
-			if let unwrappedOptionalNewValue = newValue {
-				display.text = "\(unwrappedOptionalNewValue)"
+			if let nonNilNewValue = newValue {
+				display.text = "\(nonNilNewValue)"
 				userIsInTheMiddleOfTypingANumber = false
 			} else {
 				display.text = "Cleared Calculator"
@@ -73,15 +78,17 @@ class ViewController: UIViewController
 	
 	@IBAction func enter() {
 		userIsInTheMiddleOfTypingANumber = false
-		if let result = brain.pushOperand(displayValue!) {
-			displayValue = result
-			if calculatorHistory.text!.containsString("Calculator History") {
-				calculatorHistory.text = "\(result)"
+		if let nonNilDisplayValue = displayValue {
+			if let result = brain.pushOperand(nonNilDisplayValue) {
+				displayValue = result
+				if calculatorHistory.text!.containsString("Calculator History") {
+					calculatorHistory.text = "\(result)"
+				} else {
+					calculatorHistory.text = calculatorHistory.text! + ", \(result)"
+				}
 			} else {
-				calculatorHistory.text = calculatorHistory.text! + ", \(result)"
+				displayValue = 0.0
 			}
-		} else {
-			displayValue = 0.0
 		}
 	}
 	
