@@ -22,13 +22,17 @@ class ViewController: UIViewController
 	@IBOutlet weak var calculatorHistory: UILabel!
 	
 	// local display computed variable used to when displayValue is needed as a double
-	private var displayValue: Double {
+	private var displayValue: Double? {
 		get {
 			return NSNumberFormatter().numberFromString(display.text!)!.doubleValue
 		}
 		set {
-			display.text = "\(newValue)"
-			userIsInTheMiddleOfTypingANumber = false
+			if let unwrappedOptionalNewValue = newValue {
+				display.text = "\(unwrappedOptionalNewValue)"
+				userIsInTheMiddleOfTypingANumber = false
+			} else {
+				display.text = "Cleared Calculator"
+			}
 		}
 	}
 	
@@ -62,14 +66,14 @@ class ViewController: UIViewController
 				calculatorHistory.text = calculatorHistory.text! + ", \(operation) ="
 				userHasCalledForAResult = true
 			} else {
-				displayValue = 0
+				displayValue = 0.0
 			}
 		}
 	}
 	
 	@IBAction func enter() {
 		userIsInTheMiddleOfTypingANumber = false
-		if let result = brain.pushOperand(displayValue) {
+		if let result = brain.pushOperand(displayValue!) {
 			displayValue = result
 			if calculatorHistory.text!.containsString("Calculator History") {
 				calculatorHistory.text = "\(result)"
@@ -77,13 +81,13 @@ class ViewController: UIViewController
 				calculatorHistory.text = calculatorHistory.text! + ", \(result)"
 			}
 		} else {
-			displayValue = 0
+			displayValue = 0.0
 		}
 	}
 	
 	@IBAction func clear() {
 		brain.clearStack()
-		display.text = "0"
+		displayValue = nil
 		calculatorHistory.text = "Calculator History"
 		userIsInTheMiddleOfTypingANumber = false
 	}
@@ -108,7 +112,7 @@ class ViewController: UIViewController
 			if display.text?.characters.count > 1 {
 				display.text = display.text!.substringToIndex(display.text!.endIndex.predecessor())
 			} else {
-				displayValue = 0
+				displayValue = 0.0
 				userIsInTheMiddleOfTypingANumber = false
 			}
 		}
